@@ -21,15 +21,15 @@ void work()
 void Print(int a)
 {
     mutex.lock();
-	std::cout << a << " " << std::flush;
-	std::this_thread::sleep_for(std::chrono::milliseconds(450));
+    std::cout << a << " " << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(450));
 	
-	if(a <= 1)
-	{
-		std::cout << std::endl;
+    if(a <= 1)
+    {
+        std::cout << std::endl;
         mutex.unlock();
-		return;
-	}
+        return;
+    }
 
     a--;
     Print(a);
