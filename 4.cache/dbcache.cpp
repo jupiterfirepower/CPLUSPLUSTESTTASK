@@ -488,39 +488,23 @@ private:
     {
         while (cycle) 
         {
-            try
+            std::this_thread::sleep_for(std::chrono::milliseconds(15000));
+            std::cout << "Refresh Cache()" << std::endl;
+            std::lock_guard<std::recursive_mutex> lock(g_mutex);
+
+            std::unordered_map<std::string, cacheItem> _cachetmp;
+            _cachetmp.insert(_cache.begin(), _cache.end());
+            Cassandra dbtmp = Cassandra();
+
+            for (auto& d: _cachetmp) 
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(15000));
-                std::cout << "Refresh Cache()" << std::endl;
-                std::lock_guard<std::recursive_mutex> lock(g_mutex);
-
-                std::unordered_map<std::string, cacheItem> _cachetmp;
-                _cachetmp.insert(_cache.begin(), _cache.end());
-                Cassandra dbtmp = Cassandra();
-
-                for (auto& d: _cachetmp) 
+                if(isExpired(d.second.m_expiration_time))
                 {
-                    if(isExpired(d.second.m_expiration_time))
-                    {
-                        std::cout << "Refresh Cache() Expired for key - " << d.first << std::endl;
-                        std::string valuedata = dbtmp.GetValueByKey(d.first); 
-                        std::cout << "Refresh Cache() [ Key - " << d.first << ", Value - " << valuedata << "]" << std::endl;
-                        put(d.first, valuedata);
-                    }
+                    std::cout << "Refresh Cache() Expired for key - " << d.first << std::endl;
+                    std::string valuedata = dbtmp.GetValueByKey(d.first); 
+                    std::cout << "Refresh Cache() [ Key - " << d.first << ", Value - " << valuedata << "]" << std::endl;
+                    put(d.first, valuedata);
                 }
-                std::cout << "Refresh Cache() end ok." << std::endl;
-            }
-            catch (const runtime_error& ex)
-            {
-                printError(ex);
-            }
-            catch (exception& ex)
-            {
-                printError(ex);
-            }
-            catch (...)
-            {
-                std::cerr << "error ..." << endl;
             }
         }
     }
