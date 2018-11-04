@@ -1,15 +1,15 @@
 # C++ TESTTASK
-3&nbsp;1. Напишите программу, которая отсортирует числа формата double<br>
+&nbsp;&nbsp;&nbsp;1. Напишите программу, которая отсортирует числа формата double<br>
 хранящихся в текстовом файле размером 1Гб (одно число в одной строке).<br>
 <br>
 Пример<br>
-3&nbsp;• 8.33891e+307
-3&nbsp;• 1.26192e+308
-3&nbsp;• 
-3&nbsp;• 8.19572e+307	
-3&nbsp;• ...
-3&nbsp;• 0
-3&nbsp;1.64584e+304
+&nbsp;&nbsp;&nbsp;• 8.33891e+307<br>
+&nbsp;&nbsp;&nbsp;• 1.26192e+308<br>
+&nbsp;&nbsp;&nbsp;• <br>
+&nbsp;&nbsp;&nbsp;• 8.19572e+307<br>
+&nbsp;&nbsp;&nbsp;• ...<br>
+&nbsp;&nbsp;&nbsp;• 0<br>
+&nbsp;&nbsp;&nbsp;1.64584e+304<br>
 <br>
 Программа должна использовать не более 100Мб оперативной памяти, и<br>
 работать не дольше 25-30 минут (на 2Гц современном одноядерном процессоре).<br>
@@ -27,12 +27,12 @@
 <br>
 struct i_db<br>
 {<br>
-3&nbsp;bool begin_transaction();<br>
-3&nbsp;bool commit_transaction();<br>
-3&nbsp;bool abort_transaction();<br>
-3&nbsp;std::string get(const std::string& key);<br>
-3&nbsp;std::string set(const std::string& key, const std::string& data);<br>
-3&nbsp;std::string delete(const std::string& key);<br>
+&nbsp;&nbsp;&nbsp;bool begin_transaction();<br>
+&nbsp;&nbsp;&nbsp;bool commit_transaction();<br>
+&nbsp;&nbsp;&nbsp;bool abort_transaction();<br>
+&nbsp;&nbsp;&nbsp;std::string get(const std::string& key);<br>
+&nbsp;&nbsp;&nbsp;std::string set(const std::string& key, const std::string& data);<br>
+&nbsp;&nbsp;&nbsp;std::string delete(const std::string& key);<br>
 }<br>
 <br>
 Написать реализацию кеша для БД, обратить внимание на многопоточность и на транзакционную модель работы с БД.<br>
