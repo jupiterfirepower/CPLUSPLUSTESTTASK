@@ -93,46 +93,6 @@
         }
 
     // ------------------------------------------------------------------------
-    // class: shared_mutex
-    // ------------------------------------------------------------------------
-    static_assert(std::is_standard_layout<shared_mutex>::value,
-                  "Shared mutex must be standard layout");
-
-    void shared_mutex::lock() {
-        std::unique_lock<std::recursive_mutex> lk(m_mutex);
-        do_exclusive_lock(lk);
-    }
-
-    bool shared_mutex::try_lock() {
-        std::unique_lock<std::recursive_mutex> lk(m_mutex, std::try_to_lock);
-        return do_exclusive_trylock(lk);
-    }
-
-    void shared_mutex::unlock() {
-        {
-            std::lock_guard<std::recursive_mutex> lg(m_mutex);
-            // We released an exclusive lock, no one else has a lock.
-            clear_lock_status();
-        }
-        m_exclusive_release.notify_all();
-    }
-
-    void shared_mutex::lock_shared() {
-        std::unique_lock<std::recursive_mutex> lk(m_mutex);
-        do_lock_shared(lk);
-    }
-
-    bool shared_mutex::try_lock_shared() {
-        std::unique_lock<std::recursive_mutex> lk(m_mutex, std::try_to_lock);
-        return do_try_lock_shared(lk);
-    }
-
-    void shared_mutex::unlock_shared() {
-        std::lock_guard<std::recursive_mutex> _(m_mutex);
-        do_unlock_shared(_);
-    }
-
-    // ------------------------------------------------------------------------
     // class: recursive_shared_mutex
     // ------------------------------------------------------------------------
     void recursive_shared_mutex::lock() {

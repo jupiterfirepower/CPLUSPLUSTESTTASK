@@ -38,42 +38,6 @@ class shared_mutex_base {
             static const unsigned m_write_entered = 1U << (sizeof(unsigned)*CHAR_BIT - 1);
             static const unsigned m_num_readers = ~m_write_entered;
         };
-    
-
-    /// <summary> A shared_mutex implemented to C++17 STL specification.
-    /// 
-    /// This is a Readers-Writer mutex with writer priority. Optional native_handle_type and
-    /// native_handle members are not implemented.
-    /// 
-    /// For detailed documentation, see: http://en.cppreference.com/w/cpp/thread/shared_mutex.%20</summary>
-    class shared_mutex : public shared_mutex_base {
-    public:
-        shared_mutex() = default;
-        shared_mutex(const shared_mutex&) = delete;
-        ~shared_mutex() = default;
-
-        shared_mutex& operator = (const shared_mutex&) = delete;
-
-        /// <summary> Obtains an exclusive lock of this mutex. </summary>
-        void lock();
-
-        /// <summary> Attempts to exclusively lock this mutex. </summary>
-        /// <returns> true if it the lock was obtained, false otherwise. </returns>
-        bool try_lock();
-
-        /// <summary> Unlocks the exclusive lock on this mutex. </summary>
-        void unlock();
-
-        /// <summary> Obtains a shared lock on this mutex. Other threads may also hold a shared lock simultaneously. </summary>
-        void lock_shared();
-
-        /// <summary> Attempts to obtain a shared lock for this mutex. </summary>
-        /// <returns> true if it the lock was obtained, false otherwise. </returns>
-        bool try_lock_shared();
-
-        /// <summary> Unlocks the shared lock on this mutex. </summary>
-        void unlock_shared();
-    };
 
     /// <summary> This is a non-standard class which is essentially the same as `shared_mutex` but
     /// it allows a thread to recursively obtain write locks as long as the unlock count matches
