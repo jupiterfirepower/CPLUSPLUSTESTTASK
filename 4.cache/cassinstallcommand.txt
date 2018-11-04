@@ -24,3 +24,6 @@ Status=Up/Down
 |/ State=Normal/Leaving/Joining/Moving
 -- Address Load Tokens Owns (effective) Host ID Rack
 UN 127.0.0.1 103.51 KiB 256 100.0% c43a2db6-8e5f-4b5e-8a83-d9b6764d923d rack1
+
+Download and install drivers for cassandra for example dpkg -i ...
+http://downloads.datastax.com/cpp-driver/ubuntu/18.04/

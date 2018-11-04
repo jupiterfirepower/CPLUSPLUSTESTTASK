@@ -434,7 +434,7 @@ private:
         return (_cache.count(key) > 0);
     }
     
-    bool isExpired(const std::chrono::system_clock::time_point &date_time) 
+    bool isExpired(const std::chrono::system_clock::time_point& date_time) 
     {
         return date_time + std::chrono::milliseconds(ttl) >= std::chrono::system_clock::now();
     }
