@@ -1,0 +1,26 @@
+#Ubuntu 18.04
+
+sudo add-apt-repository ppa:webupd8team/java
+echo "deb http://www.apache.org/dist/cassandra/debian 39x main" |  tee /etc/apt/sources.list.d/cassandra.list
+
+gpg --keyserver pgp.mit.edu --recv-keys 749D6EEC0353B12C
+gpg --export --armor 749D6EEC0353B12C | apt-key add -
+
+gpg --keyserver pgp.mit.edu --recv-keys A278B781FE4B2BDA
+gpg --export --armor A278B781FE4B2BDA | apt-key add -
+
+apt-get update && apt-get upgrade
+apt-get install oracle-java8-set-default cassandra ntp
+
+systemctl enable cassandra
+systemctl start cassandra
+systemctl -l status cassandra
+
+nodetool status
+
+#If UN is displayed in the output, the cluster is working. Your output should resemble this:
+
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+-- Address Load Tokens Owns (effective) Host ID Rack
+UN 127.0.0.1 103.51 KiB 256 100.0% c43a2db6-8e5f-4b5e-8a83-d9b6764d923d rack1
