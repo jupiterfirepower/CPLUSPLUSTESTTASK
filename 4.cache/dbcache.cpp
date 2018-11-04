@@ -11,6 +11,30 @@
 #include <exception>
 #include <future>
 #include <thread>
+#include <stdexcept>
+
+using namespace std;
+
+template<typename T>
+void printError(T& ex) noexcept(is_base_of<exception, T>::value)
+{
+    std::cerr << ex.what() << endl;
+}
+
+void handle_eptr(std::exception_ptr eptr) // passing by value is ok
+{
+    try 
+    {
+        if (eptr) 
+        {
+            std::rethrow_exception(eptr);
+        }
+    } 
+    catch(const std::exception& e) 
+    {
+        std::cerr << "Caught exception \"" << e.what() << std::endl;
+    }
+}
 
 struct CassandraException : public std::exception
 {
@@ -261,11 +285,27 @@ public:
 
         return resultMap;
     }
-    ~Cassandra() {
-        std::cout << "~Cassandra()" << std::endl;
-        cass_future_free(_connect_future);
-        cass_cluster_free(_cluster);
-        cass_session_free(_session);
+    ~Cassandra() 
+    {
+        try
+        {
+            std::cout << "~Cassandra()" << std::endl;
+            if(_connect_future != nullptr)
+                cass_future_free(_connect_future);
+            if(_cluster != nullptr)
+                cass_cluster_free(_cluster);
+            if(_session != nullptr)
+                cass_session_free(_session);
+        }
+        catch (exception& ex)
+        {
+            printError(ex);
+        }
+        catch (...)
+        {
+            std::cerr << "error ..." << endl;
+            handle_eptr(std::current_exception());
+        }
     }
 private:
     CassCluster* _cluster = nullptr;
@@ -448,43 +488,58 @@ private:
     {
         while (cycle) 
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(15000));
-            std::cout << "Refresh Cache()" << std::endl;
-            std::lock_guard<std::recursive_mutex> lock(g_mutex);
-
-            std::unordered_map<std::string, cacheItem> _cachetmp;
-            _cachetmp.insert(_cache.begin(), _cache.end());
-            Cassandra dbtmp = Cassandra();
-
-            for (auto& d: _cachetmp) 
+            try
             {
-                if(isExpired(d.second.m_expiration_time))
+                std::this_thread::sleep_for(std::chrono::milliseconds(15000));
+                std::cout << "Refresh Cache()" << std::endl;
+                std::lock_guard<std::recursive_mutex> lock(g_mutex);
+
+                std::unordered_map<std::string, cacheItem> _cachetmp;
+                _cachetmp.insert(_cache.begin(), _cache.end());
+                Cassandra dbtmp = Cassandra();
+
+                for (auto& d: _cachetmp) 
                 {
-                    std::cout << "Refresh Cache() Expired for key - " << d.first << std::endl;
-                    std::string valuedata = dbtmp.GetValueByKey(d.first); 
-                    std::cout << "Refresh Cache() [ Key - " << d.first << ", Value - " << valuedata << "]" << std::endl;
-                    put(d.first, valuedata);
+                    if(isExpired(d.second.m_expiration_time))
+                    {
+                        std::cout << "Refresh Cache() Expired for key - " << d.first << std::endl;
+                        std::string valuedata = dbtmp.GetValueByKey(d.first); 
+                        std::cout << "Refresh Cache() [ Key - " << d.first << ", Value - " << valuedata << "]" << std::endl;
+                        put(d.first, valuedata);
+                    }
                 }
+                std::cout << "Refresh Cache() end ok." << std::endl;
+            }
+            catch (const runtime_error& ex)
+            {
+                printError(ex);
+            }
+            catch (exception& ex)
+            {
+                printError(ex);
+            }
+            catch (...)
+            {
+                std::cerr << "error ..." << endl;
             }
         }
     }
 };
 
-
 int main()
 {
-  auto cache = Cache();
+    auto cache = Cache();
 
-  auto db = Cassandra();
-  auto result = db.GetValueByKey("one");
-  std::cout << "Value By Key - " << result << std::endl;
-  std::cout << "DeleteByKey - " << db.DeleteByKey("two") << std::endl;
-  std::cout << "AddOrUpdateInCache - " << db.AddOrUpdateInCache("two", "second1") << std::endl;
-  std::cout << "AddOrUpdateInCache - " << db.AddOrUpdateInCache("two1", "second0") << std::endl;
-  std::cout << "AddOrUpdateInCache - " << db.AddOrUpdateInCache("two12", "second12") << std::endl;
+    auto db = Cassandra();
+    auto result = db.GetValueByKey("one");
+    std::cout << "Value By Key - " << result << std::endl;
+    std::cout << "DeleteByKey - " << db.DeleteByKey("two") << std::endl;
+    std::cout << "AddOrUpdateInCache - " << db.AddOrUpdateInCache("two", "second1") << std::endl;
+    std::cout << "AddOrUpdateInCache - " << db.AddOrUpdateInCache("two1", "second0") << std::endl;
+    std::cout << "AddOrUpdateInCache - " << db.AddOrUpdateInCache("two12", "second12") << std::endl;
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100000));
-  cache.Dispose();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100000));
+    cache.Dispose();
 
-  return 0;
+    return 0;
 }
