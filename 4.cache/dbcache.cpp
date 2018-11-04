@@ -436,7 +436,7 @@ private:
     
     bool isExpired(const std::chrono::system_clock::time_point& date_time) 
     {
-        return date_time + std::chrono::milliseconds(ttl) >= std::chrono::system_clock::now();
+        return date_time + std::chrono::milliseconds(ttl) <= std::chrono::system_clock::now();
     }
 
     void put(const std::string& key, const std::string& data)
