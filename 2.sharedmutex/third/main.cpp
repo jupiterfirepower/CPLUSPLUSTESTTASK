@@ -31,8 +31,8 @@ void Print(int a)
 		return;
 	}
 
-	a--;
-	Print(a);
+    a--;
+    Print(a);
     mutex.unlock();
 }
 
