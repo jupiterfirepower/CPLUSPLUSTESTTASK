@@ -390,7 +390,7 @@ public:
         handle.wait();
     }
 
-    /* No need transaction model for single insert/update or delete query - { return true; } */
+    /* No need transaction model for single insert/update or delete query(no batch processing) - { return true; } */
     bool begin_transaction() { return true; }
     bool commit_transaction() { return true; }
     bool abort_transaction() { return true; }
