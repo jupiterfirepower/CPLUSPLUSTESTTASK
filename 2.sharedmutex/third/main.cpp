@@ -12,8 +12,7 @@ void work()
 
     std::chrono::milliseconds sleepDuration(2500);
     std::this_thread::sleep_for(sleepDuration);
-            
-    std::this_thread::sleep_for(sleepDuration);
+
     mutex.unlock();
     std::cout << std::this_thread::get_id() << ": unlocked" << std::endl;
 }
