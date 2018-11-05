@@ -67,9 +67,6 @@ public:
     {
         try
         {
-            // Open a database file
-           //SQLite::Database db("cache.db3", SQLite::OPEN_READWRITE);
-            
             // Compile a SQL query, containing one parameter (index 1)
             SQLite::Statement query(_db, "DELETE FROM cache WHERE key=?");
             
@@ -91,9 +88,6 @@ public:
         std::string result="";
         try
         {
-            // Open a database file
-            //SQLite::Database db("cache.db3");
-            
             // Compile a SQL query, containing one parameter (index 1)
             SQLite::Statement query(_db, "SELECT key, value FROM cache WHERE key=?");
             
