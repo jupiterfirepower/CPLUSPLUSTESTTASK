@@ -12,6 +12,7 @@
 #include <future>
 #include <thread>
 #include <stdexcept>
+#include <queue>
 #include <SQLiteCpp/SQLiteCpp.h>
 
 using namespace std;
@@ -296,15 +297,17 @@ public:
         {
             auto val = _cache[key];
             auto it = _cache.find(key);
-            _cache.erase(it, _cache.end());    // erasing by range
+            _cache.erase(it, _cache.end()); // erasing by range
             
             // remove from db 
             if(db.DeleteByKey(key))
             {
                 std::cout << "delete by key - " << key << " ok." << std::endl;
             }
+
             return val.m_value;
         }
+
         return nullptr;
     }
 private:
