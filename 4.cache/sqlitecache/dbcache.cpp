@@ -16,41 +16,6 @@
 
 using namespace std;
 
-template<typename T>
-void printError(T& ex) noexcept(is_base_of<exception, T>::value)
-{
-    std::cerr << ex.what() << endl;
-}
-
-void handle_eptr(std::exception_ptr eptr) // passing by value is ok
-{
-    try 
-    {
-        if (eptr) 
-        {
-            std::rethrow_exception(eptr);
-        }
-    } 
-    catch(const std::exception& e) 
-    {
-        std::cerr << "Caught exception \"" << e.what() << std::endl;
-    }
-}
-
-struct CassandraException : public std::exception
-{
-    CassandraException(std::string err)
-    : _err(err)
-    {}
-
-    const char* what() const noexcept {
-        return _err.c_str();
-    }
-
-private:
-    std::string _err;
-};
-
 class SqliteClient
 {
 public: 
