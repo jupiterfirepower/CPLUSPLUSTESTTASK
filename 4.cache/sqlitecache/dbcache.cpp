@@ -144,32 +144,6 @@ private:
     SQLite::Database _db;
 };
 
-// Cache-entry
-struct cacheItem
-{
-    cacheItem() :
-        m_value(""), m_expiration_time(std::chrono::system_clock::now()) {}
-    cacheItem(const std::string& value) :
-        m_value(value), m_expiration_time(std::chrono::system_clock::now()) {}
-    cacheItem(const cacheItem& value) :
-        m_value(value.m_value), m_expiration_time(value.m_expiration_time) {}
-    cacheItem(const cacheItem&& value) :
-        m_value(value.m_value), m_expiration_time(value.m_expiration_time) {}
-
-    cacheItem& operator=(const cacheItem& other)
-    {
-        if (this != &other) // self-assignment check expected
-        { 	
-            this->m_value = other.m_value;
-            this->m_expiration_time = other.m_expiration_time;
-        }
-        return *this;
-    }
-
-    std::string m_value;
-    std::chrono::system_clock::time_point m_expiration_time;
-};
-
 struct i_db
 {
     bool begin_transaction();
@@ -258,13 +232,13 @@ public:
         if(exist(key))
         {
             auto val = _cache[key];
-            if(isExpired(val.m_expiration_time))
+            if(isExpired(val.second))
             {
                 std::string valdbdata = db.GetValueByKey(key); 
                 put(key, valdbdata);
-                return _cache[key].m_value;
+                return _cache[key].first;
             }
-            return _cache[key].m_value;
+            return _cache[key].first;
         }
 
         return nullptr;
@@ -286,7 +260,7 @@ public:
             }
         }
         
-        return _cache[key].m_value;
+        return _cache[key].first;
     }
 
     std::string remove(const std::string& key)
@@ -305,18 +279,18 @@ public:
                 std::cout << "delete by key - " << key << " ok." << std::endl;
             }
 
-            return val.m_value;
+            return val.first;
         }
 
         return nullptr;
     }
 private:
+    volatile bool cycle = true;
     const int ttl = 30000; // 30 seconds
     std::recursive_mutex g_mutex;
-    std::unordered_map<std::string, cacheItem> _cache;
+    std::unordered_map<std::string, std::pair<std::string, std::chrono::system_clock::time_point>> _cache;
     std::future<void> handle;
     SqliteClient db = SqliteClient();
-    volatile bool cycle = true;
 
     bool exist(const std::string& key)
     {
@@ -330,7 +304,7 @@ private:
 
     void put(const std::string& key, const std::string& data)
     {
-        _cache[key] = cacheItem(data);
+        _cache[key] = std::make_pair(data,std::chrono::system_clock::now());
     }
 
     void refreshCashe() 
@@ -341,13 +315,14 @@ private:
             std::cout << "Refresh Cache()" << std::endl;
             std::lock_guard<std::recursive_mutex> lock(g_mutex);
 
-            std::unordered_map<std::string, cacheItem> _cachetmp;
+            std::unordered_map<std::string, std::pair<std::string, std::chrono::system_clock::time_point>> _cachetmp;
             _cachetmp.insert(_cache.begin(), _cache.end());
             SqliteClient dbtmp = SqliteClient();
 
             for (auto& d: _cachetmp) 
             {
-                if(isExpired(d.second.m_expiration_time))
+                auto time = d.second.second;
+                if(isExpired(time))
                 {
                     std::cout << "Refresh Cache() Expired for key - " << d.first << std::endl;
                     std::string valuedata = dbtmp.GetValueByKey(d.first); 
