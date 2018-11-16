@@ -1,0 +1,6 @@
+#!/bin/bash
+. .scripts-common
+check_create_cd ".build"
+
+cmake -DCMAKE_BUILD_TYPE=Debug -DFUERTE_TESTS=TRUE .. && \
+    make -j $(nproc)
