@@ -270,7 +270,7 @@ struct i_db
 struct Cache: public i_db
 {
 public:
-    Cache() : db(ArangoDbClient("vst://127.0.0.1:8529", "root", "dfvgbh123456789"))
+    Cache() : db(ArangoDbClient("vst://127.0.0.1:8529", "root", "password"))
     {
         handle = std::async(
                 std::launch::async,
@@ -431,7 +431,7 @@ private:
             std::unordered_map<std::string, std::pair<std::string, std::chrono::system_clock::time_point>> _cachetmp;
             _cachetmp.insert(_cache.begin(), _cache.end());
 
-            auto dbtmp = ArangoDbClient("vst://127.0.0.1:8529", "root", "dfvgbh123456789");
+            auto dbtmp = ArangoDbClient("vst://127.0.0.1:8529", "root", "password");
 
             for (auto& d: _cachetmp) 
             {
@@ -454,7 +454,7 @@ int main ()
     // Simple batch queries example :
     try
     {
-        auto dbclient = ArangoDbClient("vst://127.0.0.1:8529","root","dfvgbh123456789");
+        auto dbclient = ArangoDbClient("vst://127.0.0.1:8529","root","password");
         dbclient.GetCacheData();
         dbclient.DeleteByKey("foo");
         std::cout << "After delete" << std::endl;
